@@ -1,36 +1,36 @@
 /**
- * # Terraform Module template
- *
- * This repository is meant to be a template for creating new terraform modules.
- *
- * ## Creating a new Terraform Module
- *
- * 1. Clone this repo, renaming appropriately.
- * 1. Write your terraform code in the root dir.
- * 1. Ensure you've completed the [Developer Setup](#developer-setup).
- * 1. In the root dir, modify the `module` line for the repo path. Then run `make tidy`, which updates the `go.sum` file and downloads dependencies.
- * 1. Update the terratest tests in the examples and test directories.
- * 1. Run your terratest tests to ensure they work as expected using instructions below.
- *
- * ---
- *
- * <!-- DELETE ABOVE THIS LINE -->
+ * # ECS Scheduled Tasks
  *
  * ## Description
  *
- * Please put a description of what this module does here
+ * This module runs an ECS task in Fargate based on an Event Bridge Rule.
  *
  * ## Usage
  *
- * Add Usage information here
- *
- * Resources:
- *
- * * [Article Example](https://article.example.com)
- *
  * ```hcl
- * module "example" {
- *   source = "dod-iac/example/aws"
+ * module "ecs-scheduled-task" {
+ *   source = "dod-iac/ecs-scheduled-task/aws"
+ *
+ *   name = "task-name"
+ *   schedule_expression = "cron(30 * * * ? *)"
+ *
+ *   ecs_cluster_arn = aws_ecs_cluster.cluster.arn
+ *   ecs_subnets     = var.ecs_subnets
+ *   vpc_id          = var.vpc_id
+ *
+ *   ecr_repository_arn = module.ecr_repo.arn
+ *   ecr_repository_url = module.ecr_repo.repository_url
+ *   image_tag          = data.aws_ssm_parameter.image_tag.value
+ *
+ *   cloudwatch_log_group_arn  = aws_cloudwatch_log_group.main.arn
+ *   cloudwatch_log_group_name = aws_cloudwatch_log_group.main.name
+ *
+ *   task_role_policy_doc = data.aws_iam_policy_document.task_role_policy_doc.json
+ *
+ *   task_def_env_vars = [
+ *     { "name" : "KEYNAME1", "value" : "VALUE1" },
+ *     { "name" : "KEYNAME2", "value" : "VALUE2" },
+ *   ]
  *
  *   tags = {
  *     Project     = var.project
@@ -41,15 +41,9 @@
  * }
  * ```
  *
- * ## Testing
- *
- * Run all terratest tests using the `terratest` script.  If using `aws-vault`, you could use `aws-vault exec $AWS_PROFILE -- terratest`.  The `AWS_DEFAULT_REGION` environment variable is required by the tests.  Use `TT_SKIP_DESTROY=1` to not destroy the infrastructure created during the tests.  The go test command can be executed directly, too.
- *
  * ## Terraform Version
  *
  * Terraform 0.13. Pin module version to ~> 1.0.0 . Submit pull-requests to master branch.
- *
- * Terraform 0.11 and 0.12 are not supported.
  *
  * ## License
  *
@@ -57,10 +51,10 @@
  *
  * ## Developer Setup
  *
- * This template is configured to use aws-vault, direnv, go, pre-commit, terraform-docs, and tfenv.  If using Homebrew on macOS, you can install the dependencies using the following code.
+ * This template is configured to use aws-vault, direnv, pre-commit, terraform-docs, and tfenv.  If using Homebrew on macOS, you can install the dependencies using the following code.
  *
  * ```shell
- * brew install aws-vault direnv go pre-commit terraform-docs tfenv
+ * brew install aws-vault direnv pre-commit terraform-docs tfenv
  * pre-commit install --install-hooks
  * ```
  *
